@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CEO Health Lab&trade;</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">CEO Health Lab&trade;</p>
+      <h1>Patient OS v0.1</h1>
+      <p class="subtitle">Sistema privado para acompanhar sa&uacute;de, performance, longevidade e recomposi&ccedil;&atilde;o corporal ao longo do tempo.</p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel" aria-labelledby="new-entry-title">
+      <div class="section-heading">
+        <h2 id="new-entry-title">Novo registo</h2>
+        <p class="muted">Regista intake inicial, m&eacute;tricas corporais ou check-in semanal. Neste Sprint, os dados ficam apenas neste navegador.</p>
+      </div>
+
+      <form id="healthForm">
+        <div class="grid two">
+          <label for="member">
+            Membro
+            <select id="member" required>
+              <option value="V&iacute;tor Pereira">V&iacute;tor Pereira</option>
+              <option value="Cl&aacute;udia">Cl&aacute;udia</option>
+            </select>
+          </label>
+
+          <label for="entryType">
+            Tipo de registo
+            <select id="entryType" required>
+              <option value="weekly_checkin">Check-in semanal</option>
+              <option value="body_metrics">M&eacute;tricas corporais</option>
+              <option value="clinical_intake">Intake cl&iacute;nico</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid two">
+          <label for="entryDate">
+            Data
+            <input id="entryDate" type="date" required />
+          </label>
+
+          <label for="weight">
+            Peso (kg)
+            <input id="weight" type="number" step="0.1" min="30" max="250" placeholder="Ex: 88.1" />
+          </label>
+        </div>
+
+        <div class="grid two">
+          <label for="waist">
+            Cintura (cm)
+            <input id="waist" type="number" step="0.1" min="40" max="200" placeholder="Ex: 100" />
+          </label>
+
+          <label for="bodyFat">
+            Gordura corporal (%)
+            <input id="bodyFat" type="number" step="0.1" min="5" max="60" placeholder="Ex: 28.5" />
+          </label>
+        </div>
+
+        <div class="grid two">
+          <label for="trainingSessions">
+            Treinos realizados
+            <input id="trainingSessions" type="number" step="1" min="0" max="14" placeholder="Ex: 3" />
+          </label>
+
+          <label for="sleepHours">
+            Sono m&eacute;dio (horas)
+            <input id="sleepHours" type="number" step="0.1" min="0" max="14" placeholder="Ex: 7.2" />
+          </label>
+        </div>
+
+        <div class="grid three">
+          <label for="energy">
+            Energia (1-10)
+            <input id="energy" type="number" min="1" max="10" placeholder="1-10" />
+          </label>
+
+          <label for="stress">
+            Stress (1-10)
+            <input id="stress" type="number" min="1" max="10" placeholder="1-10" />
+          </label>
+
+          <label for="pain">
+            Dor (0-10)
+            <input id="pain" type="number" min="0" max="10" placeholder="0-10" />
+          </label>
+        </div>
+
+        <label for="notes">
+          Observa&ccedil;&otilde;es
+          <textarea id="notes" rows="4" placeholder="Sintomas, treino, alimenta&ccedil;&atilde;o, medica&ccedil;&atilde;o, recupera&ccedil;&atilde;o, contexto da semana..."></textarea>
+        </label>
+
+        <div class="actions">
+          <button type="submit">Guardar registo</button>
+          <button type="button" id="copyJson" class="secondary">Copiar JSON</button>
+          <button type="button" id="downloadJson" class="secondary">Exportar JSON</button>
+          <button type="button" id="importJson" class="secondary">Importar JSON</button>
+          <button type="button" id="clearData" class="danger">Limpar dados locais</button>
+        </div>
+
+        <input id="importJsonFile" class="visually-hidden" type="file" accept="application/json,.json,.health-export.json" />
+
+        <p id="statusMessage" class="status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="dashboard-title">
+      <div class="section-heading">
+        <h2 id="dashboard-title">Dashboard r&aacute;pido</h2>
+        <p class="muted">Resumo local dos registos guardados neste navegador.</p>
+      </div>
+
+      <div class="filters" aria-label="Filtros do historico">
+        <label for="memberFilter">
+          Membro
+          <select id="memberFilter">
+            <option value="all">Todos</option>
+            <option value="V&iacute;tor Pereira">V&iacute;tor Pereira</option>
+            <option value="Cl&aacute;udia">Cl&aacute;udia</option>
+          </select>
+        </label>
+
+        <label for="typeFilter">
+          Tipo
+          <select id="typeFilter">
+            <option value="all">Todos</option>
+            <option value="weekly_checkin">Check-in semanal</option>
+            <option value="body_metrics">M&eacute;tricas corporais</option>
+            <option value="clinical_intake">Intake cl&iacute;nico</option>
+          </select>
+        </label>
+
+        <button type="button" id="resetFilters" class="secondary">Repor filtros</button>
+      </div>
+
+      <div class="stats" aria-label="Resumo dos registos">
+        <div>
+          <span id="totalEntries">0</span>
+          <small>Total local</small>
+        </div>
+        <div>
+          <span id="visibleEntries">0</span>
+          <small>Vis&iacute;veis</small>
+        </div>
+        <div>
+          <span id="lastMember">-</span>
+          <small>&Uacute;ltimo membro</small>
+        </div>
+        <div>
+          <span id="lastDate">-</span>
+          <small>&Uacute;ltima data</small>
+        </div>
+      </div>
+
+      <h3>Resumo por membro</h3>
+      <div id="memberSummary" class="member-summary" aria-label="Resumo por membro"></div>
+
+      <h3>&Uacute;ltimos registos</h3>
+      <div id="entriesList" class="entries"></div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Uso privado. N&atilde;o substitui acompanhamento m&eacute;dico. Dados guardados localmente neste MVP.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
