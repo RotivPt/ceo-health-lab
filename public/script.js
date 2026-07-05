@@ -12,6 +12,8 @@ const typeFilter = document.getElementById("typeFilter");
 const resetFiltersButton = document.getElementById("resetFilters");
 const copyJsonButton = document.getElementById("copyJson");
 const downloadJsonButton = document.getElementById("downloadJson");
+const importJsonButton = document.getElementById("importJson");
+const importJsonFileInput = document.getElementById("importJsonFile");
 const clearDataButton = document.getElementById("clearData");
 const statusMessage = document.getElementById("statusMessage");
 
@@ -129,6 +131,56 @@ function getExportPayload() {
     entryCount: entries.length,
     entries: entries
   };
+}
+
+function getImportEntries(payload) {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (payload && Array.isArray(payload.entries)) {
+    return payload.entries;
+  }
+
+  return null;
+}
+
+function getEntryFingerprint(entry) {
+  return [
+    entry.id,
+    entry.createdAt,
+    entry.member,
+    entry.entryType,
+    entry.entryDate,
+    JSON.stringify(entry.metrics),
+    entry.notes
+  ].join("|");
+}
+
+function mergeImportedEntries(importedEntries) {
+  const existingFingerprints = new Set(entries.map(getEntryFingerprint));
+  const normalizedEntries = importedEntries.map(normalizeEntry);
+  const newEntries = normalizedEntries.filter(function (entry) {
+    const fingerprint = getEntryFingerprint(entry);
+
+    if (existingFingerprints.has(fingerprint)) {
+      return false;
+    }
+
+    existingFingerprints.add(fingerprint);
+    return true;
+  });
+
+  if (newEntries.length === 0) {
+    return 0;
+  }
+
+  entries = newEntries.concat(entries).sort(function (a, b) {
+    return new Date(b.entryDate || b.createdAt) - new Date(a.entryDate || a.createdAt);
+  });
+  saveEntries();
+  render();
+  return newEntries.length;
 }
 
 function formatEntryType(entryType) {
@@ -277,6 +329,31 @@ function downloadJson() {
   setStatus("Exportacao JSON criada.");
 }
 
+async function handleImportJsonFile(file) {
+  if (!file) {
+    return;
+  }
+
+  try {
+    const text = await file.text();
+    const payload = JSON.parse(text);
+    const importedEntries = getImportEntries(payload);
+
+    if (!importedEntries) {
+      setStatus("Ficheiro JSON sem registos validos.", "error");
+      return;
+    }
+
+    const importedCount = mergeImportedEntries(importedEntries);
+    setStatus(importedCount === 0 ? "Nenhum registo novo para importar." : `${importedCount} registo(s) importado(s).`);
+  } catch (error) {
+    console.warn("Could not import health entries.", error);
+    setStatus("Nao foi possivel importar este JSON.", "error");
+  } finally {
+    importJsonFileInput.value = "";
+  }
+}
+
 function clearLocalData() {
   if (entries.length === 0) {
     setStatus("Nao existem dados locais para limpar.");
@@ -353,6 +430,12 @@ copyJsonButton.addEventListener("click", function () {
 });
 
 downloadJsonButton.addEventListener("click", downloadJson);
+importJsonButton.addEventListener("click", function () {
+  importJsonFileInput.click();
+});
+importJsonFileInput.addEventListener("change", function (event) {
+  handleImportJsonFile(event.target.files[0]);
+});
 clearDataButton.addEventListener("click", clearLocalData);
 
 setDefaultDate();
