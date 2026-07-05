@@ -294,6 +294,47 @@ button.text-danger:hover {
   gap: 10px;
 }
 
+.member-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.member-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--field);
+  padding: 14px;
+}
+
+.member-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.summary-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.summary-metric {
+  display: grid;
+  gap: 2px;
+}
+
+.summary-metric strong {
+  font-size: 1.05rem;
+}
+
+.summary-metric span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .entry {
   display: grid;
   gap: 8px;
@@ -357,6 +398,8 @@ button.text-danger:hover {
   .grid.two,
   .grid.three,
   .filters,
+  .member-summary,
+  .summary-metrics,
   .stats,
   .entry dl {
     grid-template-columns: 1fr;
