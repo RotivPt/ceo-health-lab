@@ -3,9 +3,13 @@ const STORAGE_KEY = "ceo-health-lab.entries.v1";
 const form = document.getElementById("healthForm");
 const entriesList = document.getElementById("entriesList");
 const totalEntries = document.getElementById("totalEntries");
+const visibleEntries = document.getElementById("visibleEntries");
 const lastMember = document.getElementById("lastMember");
 const lastDate = document.getElementById("lastDate");
 const entryDate = document.getElementById("entryDate");
+const memberFilter = document.getElementById("memberFilter");
+const typeFilter = document.getElementById("typeFilter");
+const resetFiltersButton = document.getElementById("resetFilters");
 const copyJsonButton = document.getElementById("copyJson");
 const downloadJsonButton = document.getElementById("downloadJson");
 const clearDataButton = document.getElementById("clearData");
@@ -169,7 +173,7 @@ function addMetric(metricsList, label, value, suffix = "") {
 function renderEmptyState() {
   const emptyState = document.createElement("p");
   emptyState.className = "empty-state";
-  emptyState.textContent = "Ainda nao existem registos.";
+  emptyState.textContent = entries.length === 0 ? "Ainda nao existem registos." : "Nao existem registos para estes filtros.";
   entriesList.appendChild(emptyState);
 }
 
@@ -195,21 +199,40 @@ function renderEntry(entry) {
   }
 
   addTextElement(item, "p", entry.notes || "Sem observacoes.");
+
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.className = "text-danger";
+  deleteButton.dataset.entryId = entry.id;
+  deleteButton.textContent = "Apagar registo";
+  item.appendChild(deleteButton);
+
   entriesList.appendChild(item);
 }
 
+function getFilteredEntries() {
+  return entries.filter(function (entry) {
+    const matchesMember = memberFilter.value === "all" || entry.member === memberFilter.value;
+    const matchesType = typeFilter.value === "all" || entry.entryType === typeFilter.value;
+    return matchesMember && matchesType;
+  });
+}
+
 function render() {
+  const filteredEntries = getFilteredEntries();
+
   totalEntries.textContent = entries.length;
+  visibleEntries.textContent = filteredEntries.length;
   lastMember.textContent = entries[0] ? entries[0].member : "-";
   lastDate.textContent = entries[0] ? formatDate(entries[0].entryDate) : "-";
   entriesList.replaceChildren();
 
-  if (entries.length === 0) {
+  if (filteredEntries.length === 0) {
     renderEmptyState();
     return;
   }
 
-  entries.forEach(renderEntry);
+  filteredEntries.forEach(renderEntry);
 }
 
 function resetForm() {
@@ -272,6 +295,36 @@ function clearLocalData() {
   setStatus("Dados locais limpos.");
 }
 
+function deleteEntry(entryId) {
+  const entry = entries.find(function (item) {
+    return item.id === entryId;
+  });
+
+  if (!entry) {
+    return;
+  }
+
+  const confirmed = window.confirm("Queres apagar este registo?");
+
+  if (!confirmed) {
+    return;
+  }
+
+  entries = entries.filter(function (item) {
+    return item.id !== entryId;
+  });
+
+  saveEntries();
+  render();
+  setStatus("Registo apagado.");
+}
+
+function resetFilters() {
+  memberFilter.value = "all";
+  typeFilter.value = "all";
+  render();
+}
+
 form.addEventListener("submit", function (event) {
   event.preventDefault();
   entries.unshift(createEntry());
@@ -279,6 +332,18 @@ form.addEventListener("submit", function (event) {
   resetForm();
   render();
   setStatus("Registo guardado localmente.");
+});
+
+memberFilter.addEventListener("change", render);
+typeFilter.addEventListener("change", render);
+resetFiltersButton.addEventListener("click", resetFilters);
+
+entriesList.addEventListener("click", function (event) {
+  if (!event.target.matches("[data-entry-id]")) {
+    return;
+  }
+
+  deleteEntry(event.target.dataset.entryId);
 });
 
 copyJsonButton.addEventListener("click", function () {
