@@ -2,6 +2,7 @@ const STORAGE_KEY = "ceo-health-lab.entries.v1";
 
 const form = document.getElementById("healthForm");
 const entriesList = document.getElementById("entriesList");
+const memberSummary = document.getElementById("memberSummary");
 const totalEntries = document.getElementById("totalEntries");
 const visibleEntries = document.getElementById("visibleEntries");
 const lastMember = document.getElementById("lastMember");
@@ -222,6 +223,94 @@ function addMetric(metricsList, label, value, suffix = "") {
   addTextElement(metricsList, "dd", `${value}${suffix}`);
 }
 
+function getTrackedMembers() {
+  return Array.from(document.querySelectorAll("#member option")).map(function (option) {
+    return option.value;
+  });
+}
+
+function getEntryTimestamp(entry) {
+  return new Date(entry.entryDate || entry.createdAt).getTime();
+}
+
+function getEntriesForMember(member) {
+  return entries
+    .filter(function (entry) {
+      return entry.member === member;
+    })
+    .sort(function (a, b) {
+      return getEntryTimestamp(b) - getEntryTimestamp(a);
+    });
+}
+
+function findMetricHistory(memberEntries, metricKey) {
+  return memberEntries.filter(function (entry) {
+    return entry.metrics[metricKey] !== null && entry.metrics[metricKey] !== undefined;
+  });
+}
+
+function formatSignedDelta(delta, suffix) {
+  if (delta === 0) {
+    return `0${suffix}`;
+  }
+
+  return `${delta > 0 ? "+" : ""}${delta.toFixed(1)}${suffix}`;
+}
+
+function addSummaryMetric(parent, label, metricHistory, suffix) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "summary-metric";
+
+  addTextElement(wrapper, "small", label);
+
+  if (metricHistory.length === 0) {
+    addTextElement(wrapper, "strong", "-");
+    addTextElement(wrapper, "span", "Sem dados");
+    parent.appendChild(wrapper);
+    return;
+  }
+
+  const current = metricHistory[0].metrics[label === "Peso" ? "weightKg" : "waistCm"];
+  addTextElement(wrapper, "strong", `${current}${suffix}`);
+
+  if (metricHistory.length > 1) {
+    const previous = metricHistory[1].metrics[label === "Peso" ? "weightKg" : "waistCm"];
+    addTextElement(wrapper, "span", formatSignedDelta(current - previous, suffix));
+  } else {
+    addTextElement(wrapper, "span", "Sem historico");
+  }
+
+  parent.appendChild(wrapper);
+}
+
+function renderMemberSummary() {
+  memberSummary.replaceChildren();
+
+  getTrackedMembers().forEach(function (member) {
+    const memberEntries = getEntriesForMember(member);
+    const card = document.createElement("article");
+    card.className = "member-card";
+
+    addTextElement(card, "strong", member);
+
+    if (memberEntries.length === 0) {
+      addTextElement(card, "p", "Sem registos.");
+      memberSummary.appendChild(card);
+      return;
+    }
+
+    addTextElement(card, "small", `Ultimo registo: ${formatDate(memberEntries[0].entryDate)}`);
+
+    const metrics = document.createElement("div");
+    metrics.className = "summary-metrics";
+    addSummaryMetric(metrics, "Peso", findMetricHistory(memberEntries, "weightKg"), " kg");
+    addSummaryMetric(metrics, "Cintura", findMetricHistory(memberEntries, "waistCm"), " cm");
+    card.appendChild(metrics);
+
+    memberSummary.appendChild(card);
+  });
+}
+
 function renderEmptyState() {
   const emptyState = document.createElement("p");
   emptyState.className = "empty-state";
@@ -278,6 +367,7 @@ function render() {
   lastMember.textContent = entries[0] ? entries[0].member : "-";
   lastDate.textContent = entries[0] ? formatDate(entries[0].entryDate) : "-";
   entriesList.replaceChildren();
+  renderMemberSummary();
 
   if (filteredEntries.length === 0) {
     renderEmptyState();
