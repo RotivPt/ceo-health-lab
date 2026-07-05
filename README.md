@@ -16,9 +16,9 @@ This repository contains the internal MVP for collecting structured clinical, li
 - Private by default
 - Built for real weekly use
 
-## Sprint #2 Scope
+## Sprint #3 Scope
 
-The application is still intentionally simple, but now prepared for static hosting:
+The application is still intentionally simple and free to run locally:
 
 - Static web app using HTML, CSS and JavaScript
 - No framework
@@ -27,8 +27,10 @@ The application is still intentionally simple, but now prepared for static hosti
 - JSON copy and export for review
 - Local data clearing with confirmation
 - Firebase Hosting configuration with `public/` as the deployable folder
+- Local history filters by member and entry type
+- Individual entry deletion
 
-Firebase, Firestore and Authentication are part of the product direction, but Auth and Firestore are not introduced in Sprint #2. The immediate goal is to make the deployable structure reliable before connecting backend services.
+Firebase, Firestore and Authentication are part of the product direction, but Auth and Firestore are not introduced in Sprint #3. The immediate goal is to keep the local MVP useful without paid platforms or extra dependencies.
 
 ## Current Structure
 
@@ -60,7 +62,9 @@ Manual test checklist:
 3. Copy JSON.
 4. Export JSON.
 5. Clear local data and confirm the dashboard resets.
-6. Test on desktop and mobile widths.
+6. Filter history by member and entry type.
+7. Delete one individual entry.
+8. Test on desktop and mobile widths.
 
 ## Privacy Note
 
@@ -76,4 +80,4 @@ No Firebase project ID is stored in this repository yet. Keep project-specific a
 
 ## Status
 
-Sprint #2 - Static Hosting Foundation: implemented locally, pending validation.
+Sprint #3 - Local History Controls: implemented locally, pending validation.
