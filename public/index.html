@@ -117,10 +117,37 @@
         <p class="muted">Resumo local dos registos guardados neste navegador.</p>
       </div>
 
+      <div class="filters" aria-label="Filtros do historico">
+        <label for="memberFilter">
+          Membro
+          <select id="memberFilter">
+            <option value="all">Todos</option>
+            <option value="V&iacute;tor Pereira">V&iacute;tor Pereira</option>
+            <option value="Cl&aacute;udia">Cl&aacute;udia</option>
+          </select>
+        </label>
+
+        <label for="typeFilter">
+          Tipo
+          <select id="typeFilter">
+            <option value="all">Todos</option>
+            <option value="weekly_checkin">Check-in semanal</option>
+            <option value="body_metrics">M&eacute;tricas corporais</option>
+            <option value="clinical_intake">Intake cl&iacute;nico</option>
+          </select>
+        </label>
+
+        <button type="button" id="resetFilters" class="secondary">Repor filtros</button>
+      </div>
+
       <div class="stats" aria-label="Resumo dos registos">
         <div>
           <span id="totalEntries">0</span>
-          <small>Registos</small>
+          <small>Total local</small>
+        </div>
+        <div>
+          <span id="visibleEntries">0</span>
+          <small>Vis&iacute;veis</small>
         </div>
         <div>
           <span id="lastMember">-</span>
