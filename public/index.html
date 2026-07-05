@@ -104,8 +104,11 @@
           <button type="submit">Guardar registo</button>
           <button type="button" id="copyJson" class="secondary">Copiar JSON</button>
           <button type="button" id="downloadJson" class="secondary">Exportar JSON</button>
+          <button type="button" id="importJson" class="secondary">Importar JSON</button>
           <button type="button" id="clearData" class="danger">Limpar dados locais</button>
         </div>
+
+        <input id="importJsonFile" class="visually-hidden" type="file" accept="application/json,.json,.health-export.json" />
 
         <p id="statusMessage" class="status" role="status" aria-live="polite"></p>
       </form>
