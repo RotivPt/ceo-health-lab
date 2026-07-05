@@ -1,0 +1,27 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Private exports
+exports/
+private-data/
+*.health-export.json
